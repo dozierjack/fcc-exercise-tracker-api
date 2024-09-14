@@ -50,7 +50,8 @@ app.post('/api/users/:id/exercises', (req, res, next) =>
   let exer = new Exercise({
     description: req.body.description,
     duration: req.body.duration,
-    dateobj: (d.toString() == 'Invalid Date') ? Date.now() : d
+    dateobj: (d.toString() == 'Invalid Date') ? new Date() : d,
+    date: (d.toString() == 'Invalid Date') ? new Date().toDateString() : d.toDateString()
   });
   console.log(req.body._id, req.body.id, req.params.id);
   User.findById(req.params.id).then((u) =>
@@ -66,8 +67,17 @@ app.post('/api/users/:id/exercises', (req, res, next) =>
       u.count = u.log.length
       u.save().then((doc) =>
       {
+        u.count = 1;
+        u.log = [exer]
         console.log(`updated user ${u.username}: ${doc}`);
-        res.json(u);
+        console.log(`doc ${doc} vs u ${u}`);
+        res.json({
+          _id: u._id,
+          username: u.username,
+          description: exer.description,
+          duration: exer.duration,
+          date: exer.date
+        });
       }).catch((e) =>
       {
         console.error(`encountered error ${e} while adding exercise log ${exer} to user ${u}`);
