@@ -63,6 +63,7 @@ app.post('/api/users/:id/exercises', (req, res, next) =>
     {
       exer.username = u.username;
       u.log.push(exer);
+      u.count = u.log.length
       u.save().then((doc) =>
       {
         console.log(`updated user ${u.username}: ${doc}`);
@@ -73,8 +74,56 @@ app.post('/api/users/:id/exercises', (req, res, next) =>
         res.json({ error: e.message });
       });
     }
+  }).catch((err) =>
+  {
+    console.error(`find by id failed ${err}`);
+    res.json({ error: err.message })
   });
 });
+
+app.get('/api/users/:id/logs', (req, res, next) =>
+{
+  User.findById(req.params.id).then((u) =>
+  {
+    if (u == null)
+    {
+      console.error(`error: u == null in logs endpoint findById call`);
+      res.json({ error: 'no user found with that id' });
+    } else if (req.query.from || req.query.to || req.query.limit)
+    {
+      let from = new Date(req.query.from);
+      from = (from.toString() == 'Invalid Date') ? null : from;
+      let to = new Date(req.query.to);
+      to = (to.toString() == 'Invalid Date') ? Infinity : to;
+      let lim = Number(req.query.limit);
+      lim = (!lim) ? Infinity : lim;
+
+      let arr = [];
+      for (let ex of u.log)
+      {
+        if (ex.dateobj >= from && ex.dateobj <= to)
+        {
+          if (arr.length <= lim)
+          {
+            arr.push(ex);
+          } else
+          {
+            break;
+          }
+        }
+      }
+      u.log = arr;
+      res.json(u);
+    } else
+    {
+      res.json(u);
+    }
+  }).catch((e) =>
+  {
+    console.error(`findById call in logs endpoint returned rejected promise (${e})`);
+    res.json({ error: e.message });
+  });
+})
 
 const listener = app.listen(process.env.PORT || 3000, () => {
   console.log('Your app is listening on port ' + listener.address().port)
