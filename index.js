@@ -92,7 +92,7 @@ app.get('/api/users/:id/logs', (req, res, next) =>
     } else if (req.query.from || req.query.to || req.query.limit)
     {
       let from = new Date(req.query.from);
-      from = (from.toString() == 'Invalid Date') ? null : from;
+      from = (from.toString() == 'Invalid Date') ? -Infinity : from;
       let to = new Date(req.query.to);
       to = (to.toString() == 'Invalid Date') ? Infinity : to;
       let lim = Number(req.query.limit);
@@ -103,7 +103,7 @@ app.get('/api/users/:id/logs', (req, res, next) =>
       {
         if (ex.dateobj >= from && ex.dateobj <= to)
         {
-          if (arr.length <= lim)
+          if (arr.length < lim)
           {
             arr.push(ex);
           } else
@@ -112,6 +112,7 @@ app.get('/api/users/:id/logs', (req, res, next) =>
           }
         }
       }
+      u.count = arr.length
       u.log = arr;
       res.json(u);
     } else

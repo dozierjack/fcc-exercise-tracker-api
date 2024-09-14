@@ -17,7 +17,6 @@ const exerciseSchema = new mongoose.Schema({
     date: String,
     dateobj: {
         type: Date,
-        select: false,
         default: Date.now()
     }
 });
