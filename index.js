@@ -67,7 +67,7 @@ app.post('/api/users/:id/exercises', (req, res, next) =>
       u.save().then((doc) =>
       {
         console.log(`updated user ${u.username}: ${doc}`);
-        res.json(exer);
+        res.json(u);
       }).catch((e) =>
       {
         console.error(`encountered error ${e} while adding exercise log ${exer} to user ${u}`);
