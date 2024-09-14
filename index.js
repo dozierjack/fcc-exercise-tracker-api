@@ -67,10 +67,6 @@ app.post('/api/users/:id/exercises', (req, res, next) =>
       u.count = u.log.length
       u.save().then((doc) =>
       {
-        u.count = 1;
-        u.log = [exer]
-        console.log(`updated user ${u.username}: ${doc}`);
-        console.log(`doc ${doc} vs u ${u}`);
         res.json({
           _id: u._id,
           username: u.username,
